@@ -24,5 +24,23 @@ services:
       - PGPORT=5432
     ports:
       - 3000:3000
+
+  keycloak:
+    build:
+      context: ./keycloak
+      dockerfile: Dockerfile.keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/todos
+      - KC_DB_USERNAME=admin
+      - KC_DB_PASSWORD=password
+      - KC_HOSTNAME=localhost
+    ports:
+      - 8443:8443
+    depends_on:
+      - postgres
+
 volumes:
   postgres-data:

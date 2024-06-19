@@ -1,7 +1,13 @@
 const { Client } = require("pg");
 const express = require("express");
+const Keycloak = require("keycloak-connect");
+
+const keycloak = new Keycloak({}, "backend.json");
 const app = express();
 const port = 3000;
+app.use(express.json());
+const routes = express.Router();
+app.use("/api", routes);
 
 const client = new Client({
   user: process.env.PGUSER,
@@ -10,8 +16,10 @@ const client = new Client({
   port: process.env.PGPORT,
   database: process.env.PGDATABASE,
 });
-
-// Connect to PostgreSQL
+keycloak.redirectToLogin = (req) => false;
+keycloak.accessDenied = (req, res) => {
+  res.status(401).json({ message: "You're not logged in" });
+};
 client
   .connect()
   .then(() => {
@@ -29,11 +37,7 @@ client
     console.error("Error connecting to PostgreSQL database", err);
   });
 
-app.use(express.json());
-const routes = express.Router();
-app.use("/api", routes);
-
-routes.get("/todo", async (req, res) => {
+routes.get("/todo", keycloak.protect(), async (req, res) => {
   try {
     const result = await client.query("SELECT * FROM todos");
     res.status(200).json({ todos: result.rows });
@@ -43,7 +47,7 @@ routes.get("/todo", async (req, res) => {
   }
 });
 
-routes.post("/todo", async (req, res) => {
+routes.post("/todo", keycloak.protect(), async (req, res) => {
   try {
     const { title } = req.body;
     if (!title) {
@@ -60,7 +64,7 @@ routes.post("/todo", async (req, res) => {
   }
 });
 
-routes.delete("/todo", async (req, res) => {
+routes.delete("/todo", keycloak.protect(), async (req, res) => {
   try {
     const { id } = req.body;
     if (!id) {

@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "ef-keycloak-connect": "^1.7.4-RC5",
     "express": "^4.19.2",
     "pg": "^8.12.0"
   }

@@ -1,0 +1,10 @@
+{
+  "realm": "todo-realm",
+  "auth-server-url": "http://keycloak:8443/",
+  "ssl-required": "external",
+  "resource": "backend",
+  "credentials": {
+    "secret": "SdRHv08e7Tbiu3PnxLfMpJ8DZhOPxvQh"
+  },
+  "confidential-port": 0
+}
