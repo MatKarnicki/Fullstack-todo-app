@@ -9,6 +9,8 @@ services:
       - POSTGRES_DB=todos
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
 
   backend:
     build:
@@ -17,13 +19,14 @@ services:
     depends_on:
       - postgres
     environment:
+      - PUBLIC_KEY=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAroWRdJswnAEZHNxFTXQV2Px+639zbg7ZzitN3zTr2oQahaYdectA1Ep7qNkeXD4rC72Pp6WbxT9yLHTBOvJxWTWYaoCkj/dYd63QF1/ee3INvpqag6e5F2bk2s7gWmJILHt6tB9T/qgU2cHF413FK+vENNMTKquj/RkviL9YBF1iCnRF92ACfoQu82lfQHT3rMWhdG3gwzGGfMskuqvBlwSgn+Kg8zgzn9WonCmClwbdxklUSPxUrBgTdDwS2jMOgXfPDGIXKl1FmE8j4IapWBiSQg2H23ushO2hoDIIPYC3gVn391jJWkN1GhpQPQNWQTZvwl3nAI9mcIQlw8sVWwIDAQAB
       - PGUSER=admin
       - PGHOST=postgres
       - PGDATABASE=todos
       - PGPASSWORD=password
       - PGPORT=5432
     ports:
-      - 3000:3000
+      - 3001:3001
 
   keycloak:
     build:
@@ -37,10 +40,12 @@ services:
       - KC_DB_USERNAME=admin
       - KC_DB_PASSWORD=password
       - KC_HOSTNAME=localhost
+      - KC_HTTP_ENABLED=true
     ports:
-      - 8443:8443
+      - 8080:8080
     depends_on:
       - postgres
+#health check?
 
 volumes:
   postgres-data:

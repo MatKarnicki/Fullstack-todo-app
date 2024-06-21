@@ -1,6 +1,6 @@
 {
   "realm": "todo-realm",
-  "auth-server-url": "http://keycloak:8443/",
+  "auth-server-url": "http://keycloak:8080/",
   "ssl-required": "external",
   "resource": "backend",
   "credentials": {
