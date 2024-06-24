@@ -21,12 +21,7 @@ const Nav = () => {
                 </li>
                 <li>
                   <a className="hover:text-blue-800" href="/secured">
-                    Secured Page
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-blue-800" href="/admin">
-                    Admin Page
+                    my-todos
                   </a>
                 </li>
               </ul>

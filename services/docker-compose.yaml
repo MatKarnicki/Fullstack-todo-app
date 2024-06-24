@@ -45,7 +45,15 @@ services:
       - 8080:8080
     depends_on:
       - postgres
-#health check?
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      - backend
+    ports:
+      - 3000:3000
 
 volumes:
   postgres-data:
