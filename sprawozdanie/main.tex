@@ -85,17 +85,17 @@
 \rhead{\hmwkAuthorName} % Top left header
 \lhead{\hmwkClass: \hmwkTitle} % Top center header
 \rhead{\firstxmark} % Top right header
-\lfoot{Jan Kowalski} % Bottom left footer
+\lfoot{Mateusz Karnicki} % Bottom left footer
 \cfoot{} % Bottom center footer
 \rfoot{} % Bottom right footer
 \renewcommand{\headrulewidth}{1pt}
 \renewcommand{\footrulewidth}{1pt}
 
     
-\newcommand{\hmwkTitle}{Tytuł projektu z technologii chmurowych} % Tytuł projektu
+\newcommand{\hmwkTitle}{Klaster kubernetes na podstawie aplikacji ToDo} % Tytuł projektu
 \newcommand{\hmwkDueDate}{\today} % Data 
 \newcommand{\hmwkClass}{Technologie chmurowe} % Nazwa przedmiotu
-\newcommand{\hmwkAuthorName}{Jan Kowalski} % Imię i nazwisko
+\newcommand{\hmwkAuthorName}{Mateusz Karnicki} % Imię i nazwisko
 
 % trabalho 
 \begin{document}
@@ -105,8 +105,7 @@
 	\begin{center}
 	\hspace*{-1cm}
 	\vspace*{0.5cm}
-    \includegraphics[scale=0.55]{imagens/loga.png}\\
-	\textbf{Uniwersytet Gdański \\ [0.05cm]Wydział Matematyki, Fizyki i Informatyki \\ [0.05cm] Instytut Informatyki}
+    \includegraphics[scale=0.55]{imagens/loga.png}\\u	\textbf{Uniwersytet Gdański \\ [0.05cm]Wydział Matematyki, Fizyki i Informatyki \\ [0.05cm] Instytut Informatyki}
 
 	\vspace{0.6cm}
 	\vspace{4cm}
@@ -136,52 +135,72 @@
 \section{Opis projektu}
 \label{sec:Project}
 
-Tutaj wypisujemy szczegółowe informacje o celu powstania projektu (jakaś historyjka, że pewna firma/osoba potrzebuje bazy, która ...)
-
-\subsection{Opis architektury - 8 pkt}
+Celem projektu było zbudowanie aplikacji pozwalającej użytkownikowi ustalać i śledzić zadania do wykonania w przejrzysty sposób z poziomu przeglądarki internetowej. W celu uzyskania jak największej ilości użytkowników aplikacja jest szybka i zawiera tylko najważniejsze funkcje, sprawiając że można ją uruchomić niezależnie od tego jak dobry komputer posiada użytkownik.
+\newline
+\newline
+Każda osoba, która chce korzystać z serwisu musi założyć własne konto, którego zawartość dostępna jest niezależnie od tego, z którego urządzenia korzysta.
+\subsection{Opis architektury}
 \label{sec:introduction}
-Powinna zawierać opis architektury aplikacji opartej na Kubernetes, w tym opis klastrowego systemu zarządzania kontenerami, wykorzystanych modułów i komponentów
-
-
-\subsection{Opis infrastruktury - 6 pkt}
+Klaster Kubernetes składa się z wielu współpracujących elementów zapewniających poprawne działanie aplikacji. Wszystkie mikroserwisy z wyjątkiem bazy danych posiadają własny zoptymalizowany plik Dockerfile. Na podstawie tych plików zbudowano obrazy, które zostały umieszczona w serwisie DockerHub, pozwalając na uruchomienie większości podserwisów w klastrze Kubernetes na dowolnym urządzeniu. Każda część aplikacji posiada pliki Service oraz Deployment, pierwszy z nich ustalaja parametry usług, drugi natomiast zarządza tworzeniem i skalowaniem podów oraz aktualizacjami aplikacji. \textit{Pod} w Kubernetes to najmniejsza jednostka zarządzania. Składa się z jednego lub więcej kontenerów, które współdzielą pamięć, sieć i dysk.
+\newline
+\newline
+Baza danych została zaimplementowa przy użyciu \textit{PersistentVolume}. W Kubernetes, \textit{PersistentVolume} (PV) reprezentuje trwałą przestrzeń dyskową do wykorzystania przez klaster. Jest to sposób na przechowywanie danych, które przetrwają nawet po zakończeniu działania poda. \cite{Stepik}
+\subsection{Opis infrastruktury}
 \label{sec:Users}
+W tym projekcie Kubernetes samodzielnie zajmuje się ustalaniem komunikacji pomiędzy konkretnymi usługami oraz ich wieloma instancjami. Pozwala to na bezkonfliktowe rozszerzanie i skalowanie aplikacji.
 
-Powinien zawierać informacje na temat środowiska, w którym aplikacja będzie działać, a także wykorzystanych narzędzi i platformy chmurowe. Ważne jest również zwrócenie uwagi na wykorzystanie zasobów, takich jak sieci i pamięci masowej.
+W klastrze typ usług został ustawiony jako LoadBalancer, którego głównym zadaniem jest równomierne rozkładanie ruchu sieciowego między \textit{podami}, zapewniając, że mikroserwisy pozostają responsywne i dostępne, nawet przy wielu aktywnych instancjach. Dodatkowo wystawia je na świat zewnętrzny pozwalając na podłączenie się do nich np. z przeglądarki.
 
-\subsection{Opis komponentów aplikacji - 8 pkt}
+\newpage
+\subsection{Opis komponentów aplikacji}
 \label{sec:FunctionalConditions}
 
-Powinna zawierać informacje na temat komponentów aplikacji, takich jak serwisy, aplikacje i bazy danych. W szczególności należy zwrócić uwagę na sposoby ich wdrażania, konfiguracji i zarządzania.
+\begin{itemize}
+    \item Frontend - Interfejs graficzny użytkownika do obsługi naszej aplikacji, zawiera panel logowania oraz stronę główną wyświetlająca listę zadań użytkownika oraz prosty formularz do dodawania kolejnych. Napisany został w języku JavaScript przy użyciu biblioteki React. 
+    \item Backend - serwer aplikacji odpowiedzialny za obsługę żądań wysyłanych przez frontend oraz zwracanie odpowiednich danych dla użytkowników. Ta część aplikacji została napisana w języku JavaScript przy użyciu frameworku Express, który umożliwia tworzenie i obsługę usług serwerowych.
+    \item PostgreSQL - jeden z najpopularniejszych otwartych systemów zarządzania relacyjnymi bazami danych. Dane przechowywane są w postaci tabel składających się z rekordów posiadających pewne atrybuty. Do obsługi zapytań wykorzystujemy kwerendy napisane w SQL. Baza przechowuje zarówno dane użytkowników jak i pliki konfiguracyjne.
+    \item Keycloak - Usługa uwierzytelniająca użytkowników wewnątrz naszej aplikacji. Weryfikuje oraz rozsyła tokeny, za pomocą których weryfikuje czy użytkownik jest zalogowany oraz czy posiada odpowiednie uprawnienia do zasobu. Keycloak przechowuje wszystkie konta użytkowników oraz odpowiedzialny jest za logowanie i rejestracje do aplikacji.
+\end{itemize}
 
-\subsection{Konfiguracja i zarządzanie - 4 pkt}
+\subsection{Konfiguracja i zarządzanie}
 \label{sec:NonFunctionalConditions}
 
-Powinna zawierać informacje na temat konfiguracji i zarządzania aplikacją na poziomie klastra Kubernetes.
+Pliki konfiguracyjne klastra są przechowywane w oddzielnym folderze w formacie YAML. Każda usługa posiada osobne pliki, co przyczynia się do uporządkowania projektu i ułatwia szybkie odnalezienie odpowiednich opcji konfiguracyjnych. Na ich podstawie tworzone są pody z określoną konfiguracją, zawierającą informacje takie jak obraz kontenera, zmienne środowiskowe specyficzne dla danej usługi oraz liczba instancji do utworzenia. Taki sposób konfiguracji umożliwia szybkie wdrażanie zmian oraz dostosowywanie parametrów bez konieczności ingerencji w całą strukturę aplikacji.
 
-\subsection{Zarządzanie błędami - 2 pkt}
+\subsection{Zarządzanie błędami}
 \label{sec:ERD} 
 
-Powinna zawierać informacje na temat sposobów zarządzania błędami aplikacji oraz sposobów monitorowania i reagowania na awarie.
 
-
-\subsection{Skalowalność - 4 pkt}
+Zarządzanie błędami odbywa się za pomocą wbudowanych mechanizmów Kubernetesa. Mikroserwisy mają ustaloną politykę reagowania na awarie ustawioną na wartość \textit{Always}, co oznacza, że dany pod będzie ciągle ponownie uruchamiany aż do momentu poprawnego uruchomienia.
+\newpage
+\subsection{Skalowalność}
 \label{sec:ExamplesSection}
 
-Skalowalność jest kluczowa w architekturze aplikacji opartej na Kubernetes. Należy opisać, jak aplikacja może być skalowana, w jaki sposób skalowanie jest monitorowane i jakie narzędzia są wykorzystywane w tym celu.
+Skalowalność odnosi się do zdolności zwiększania zasobów przypisanych do danego komponentu w odpowiedzi na wzrost obciążenia. W  projekcie wykorzystano Horizontal Pod Autoscaler, mechanizm Kubernetesa monitorujący zużycie zasobów. Gdy zużycie pamięci osiąga ustaloną wartość - w tym projekcie ustaloną na 80\% - HPA automatycznie tworzy nowe instancje danego \textit{podu}.
 
-\subsection{Wymagania dotyczące zasobów - 2 pkt}
+Dla zapewnienia efektywności i wysokiej dostępności usług, ustalono limit 5 instancji dla frontendu, backendu oraz keycloaka.
+
+\subsection{Wymagania dotyczące zasobów}
 \label{sec:ExampleTables}
 
-Powinna zawierać informacje na temat wymagań dotyczących zasobów dla każdego komponentu aplikacji, takie jak ilość pamięci RAM, CPU, miejsce na dysku, itp. Należy również opisać, jakie są oczekiwania dotyczące wydajności i czasu odpowiedzi dla aplikacji.
-
-
-\subsection{Architektura sieciowa - 4 pkt}
+W celu zabezpieczenia mikroserwisów przed zachłannością innych na pamięć oraz użycie procesora, wszystkie pody mają ustalony poziom zasobów, którego nie wolno im przekroczyć. Granice te zostały ustalone poprzez podwojenie zaobserwowanych wartości zużycia zasobów przez \textit{pody}. 
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Usługa\textbackslash{}Zasoby & Maksymalne zużycie procesora & Maksymalne zużycie pamięci \\ \hline
+Frontend                     & 200 mili-rdzeni              & 256MiB                     \\ \hline
+Backend                      & 100 mili-rdzeni              & 256MiB                     \\ \hline
+PostgreSQL                    & 100 mili-rdzeni              & 256MiB                     \\ \hline
+Keycloak                     & 500 mili-rdzeni              & 2GiB                       \\ \hline
+\end{tabular}
+\end{table}
+\subsection{Architektura sieciowa}
 \label{sec:ExampleResults}
 
-powinna zawierać informacje na temat architektury sieciowej aplikacji, w tym sposobu konfiguracji sieci w klastrze Kubernetes, wykorzystywanych protokołów i narzędzi do zarządzania siecią.
+Architektura sieciowa została zdefiniowana w plikach konfiguracyjnych poprzez ustalenie portów, na których działają usługi oraz przez ustalenie które usługi łączą się z sobą. Usługi takie jak frontend czy keycloak mają ustalony typ LoadBalancer, który nie tylko zapewnia równomierne rozłożenie zużycia zasobów, ale również wystawia porty na zewnątrz klastra. Użytkownicy są w stanie połaczyć się z aplikacją w celu zalogowania, rejestracji, bądź przeglądania własnych zadań. Wykorzystanie nazw usług w konfiguracji zamiast poszczególnych adresów daje klastrowi Kubernetes możliwość samodzielnego ustalania adresów wewnętrznych oraz przekierowywania ruchu sieciowego pomiędzy kilkoma instancjami tych samych usług.
 
 \noindent
-\textbf{Każdy odnośnik, który znajdzie się w literaturze musi mieć swoje odwołanie w projekcie. - 2 pkt} 
 
 \bibliographystyle{amsplain}
 \bibliography{references.bib}
